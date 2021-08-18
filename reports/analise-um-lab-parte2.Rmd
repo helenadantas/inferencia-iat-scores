@@ -1,12 +1,13 @@
 ---
 title: "Análise de uma replicação"
+author: "Helena Mylena Cunha Dantas"
 output:
     html_document:
     df_print: paged
     code_folding: hide
 theme: sandstone
 params: 
-    arquivo_dados: "data/sdsu.csv"
+    arquivo_dados: "data/ufl.csv"
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -15,11 +16,9 @@ library(broom)
 library(ggbeeswarm)
 library(gridExtra)
 theme_set(theme_bw())
-
 knitr::opts_chunk$set(tidy = FALSE,
                       fig.width = 6,
                       fig.height = 5)
-
 ```
 
 ## Referências para interpretar o IAT
@@ -69,7 +68,6 @@ agrupado = iat %>%
     group_by(sex) %>% 
     summarise(media = mean(d_art), 
               .groups = "drop")
-
 agrupado
 ```
 
@@ -84,7 +82,6 @@ m - f
 
 ```{r}
 library(boot)
-
 theta <- function(d, i) {
     agrupado = d %>% 
         slice(i) %>% 
@@ -94,16 +91,13 @@ theta <- function(d, i) {
     f = agrupado %>% filter(sex == "f") %>% pull(media)
     m - f
 }
-
 booted <- boot(data = iat, 
                statistic = theta, 
                R = 2000)
-
 ci = tidy(booted, 
           conf.level = .95,
           conf.method = "bca",
           conf.int = TRUE)
-
 glimpse(ci)
 ```
 
@@ -127,7 +121,6 @@ p1 = iat %>%
     ggplot(aes(x = sex, y = d_art)) +
     geom_quasirandom(width = .1, alpha = .7) + 
     stat_summary(geom = "point", fun = "mean", color = "red", size = 5)
-
 p2 = ci %>%
     ggplot(aes(
         x = "",
@@ -140,21 +133,22 @@ p2 = ci %>%
     ylim(-1, 1) + 
     labs(x = "Diferença", 
          y = "IAT homens - mulheres")
-
 grid.arrange(p1, p2, ncol = 2)
-
 ```
 
 ### Conclusão
+```{r}
+sumario = iat %>%
+  group_by(sex) %>%
+  summarize(
+    avg = mean(d_art),
+    dp = sd(d_art),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(names_from = sex, values_from = c(avg, dp, n))
+```
 
-**Apague esse parágrafo, e no seguinte substitua no mínimo as partes em negrito por texto seu. Pode substituir o quanto quiser**.
 
-Em média, as mulheres que participaram do experimento tiveram uma associação implícita (medida pelo IAT) com a matemática **positiva/negativa** e **fraca/média/forte** (**média XXX, desv. padrão YYY, N = ZZZ**). Homens tiveram uma associação **positiva/negativa** com a matemática, portanto **maior/menor** que a das mulheres (**média XXX , desv. padrão YYY, N = ZZZ**). Houve portanto uma **grande/considerável/pequena/desprezível** diferença entre homens e mulheres (**diferença das médias XXXX, 95% CI [CCC, DDD]**). Os dados de nosso experimento portanto apontam que... **COMPLETE AQUI**.
+Em média, as mulheres que participaram do experimento tiveram uma associação implícita (medida pelo IAT) com a matemática **negativa** e **média** (**média `r sumario$avg_f`, desv. padrão `r sumario$dp_f`, N = `r sumario$n_f`**). Homens tiveram uma associação negativa com a matemática, portanto **menor** que a das mulheres (**média `r sumario$avg_m`, desv. padrão `r sumario$dp_m`, N = `r sumario$n_m`**). Houve portanto uma **pequena** diferença entre homens e mulheres (**diferença das médias `r ci$statistic`, 95% CI [`r ci$conf.low`, `r ci$conf.high`]**). Os dados de nosso experimento portanto apontam que **mulheres têm uma associação negativa média com a matemática e os homens também têm uma associação negativa, porém um pouco mais fraca que a das mulheres.**.
 
---- 
-*Exemplos de possíveis conclusões para completar*
-
-  * mulheres têm uma associação negativa consideravelmente mais forte, com uma diferença que provavelmente está entre 0.6 e 1.0 ponto na escala IAT, o suficiente para diferenciar uma associação neutra de uma muito forte contra a matemática.
-  * mulheres têm uma associação negativa mais forte, porém não é claro se essa diferença é grande, moderada ou pequena. É necessário coletar mais dados para determinar se a diferença é relevante ou negligenciável. 
-  * mulheres podem ter um associação negativa forte, pode não haver diferença entre sexos ou homens podem ter atitudes negativas um pouco mais fortes ou moderadamente mais fortes. 
-  * não há evidência clara de uma diferença relevante entre sexos: os dados apontam que ela pode não existir e, se ela existir, ela é pequena em qualquer das direções. 

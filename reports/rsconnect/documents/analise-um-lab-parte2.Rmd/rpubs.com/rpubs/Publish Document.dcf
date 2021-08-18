@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/800095/63173c6045c040fdb45173b677633e9c
+bundleId: https://api.rpubs.com/api/v1/document/800095/63173c6045c040fdb45173b677633e9c
+url: http://rpubs.com/helenadantas/800095
+when: 1629248559.12621
+lastSyncTime: 1629248559.12621
